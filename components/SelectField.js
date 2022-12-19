@@ -1,27 +1,28 @@
-import { FormControl, InputLabel, MenuItem, Select } from '@mui/material'
-import { Box } from '@mui/system'
-import React, { useState } from 'react'
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { Box } from "@mui/system";
+import React, { useState } from "react";
 
 const SelectField = (props) => {
-  const { label } = props;
+  const { label, options, setParam } = props;
   const [value, setValue] = useState("");
 
-  const handleChange = () => {
-    
-  }
+  const handleChange = (e) => {
+    setValue(e.target.value)
+    setParam(e.target.value)
+  };
 
   return (
-    <Box mt={3} width="100%" bgcolor='white'>
-        <FormControl fullWidth>
-            <InputLabel>{label}</InputLabel>
-            <Select value={value} label={label} onChange={handleChange}>
-                <MenuItem>Option1</MenuItem>
-                <MenuItem>Option2</MenuItem>
-                <MenuItem>Option3</MenuItem>
-            </Select>
-        </FormControl>
+    <Box mt={3} width="100%" bgcolor="white">
+      <FormControl fullWidth>
+        <InputLabel>{label}</InputLabel>
+        <Select value={value} label={label} onChange={handleChange}>
+          {options.map(({ id, name }) => (
+            <MenuItem value={id} key={id}>{name}</MenuItem>
+          ))}
+        </Select>
+      </FormControl>
     </Box>
-  )
-}
+  );
+};
 
-export default SelectField
+export default SelectField;

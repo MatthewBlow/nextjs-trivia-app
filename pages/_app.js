@@ -1,14 +1,15 @@
-import { Box, Container } from '@mui/system'
-import '../styles/globals.css'
+import { Box, Container } from "@mui/system";
+import { Provider } from "../context/mainContext";
+import "../styles/globals.css";
 
 export default function App({ Component, pageProps }) {
   return (
-    <div>
+    <Provider>
       <Container maxWidth="sm">
         <Box textAlign="center" mt={5}>
-          <Component {...pageProps}/>
+          <Component {...pageProps} />
         </Box>
       </Container>
-    </div>
-  )
+    </Provider>
+  );
 }
