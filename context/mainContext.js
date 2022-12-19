@@ -13,6 +13,8 @@ export const Provider = ({ children }) => {
   const [questions, setQuestions] = useState([])
   const [url, setUrl] = useState("")
   
+  axios.defaults.baseURL = "https://opentdb.com/";
+
   useEffect(() => {
     const fetchQuestions = async() => {
       try {

@@ -13,6 +13,7 @@ import useAxios from '../hooks/useAxios'
 
 const inter = Inter({ subsets: ['latin'] })
 
+axios.defaults.baseURL = "https://opentdb.com/";
 
 /* export const getData = () => {
   const context = useContext(MainContext);
@@ -24,8 +25,6 @@ const inter = Inter({ subsets: ['latin'] })
 
    export const getStaticProps = async () => {
     
-    axios.defaults.baseURL = "https://opentdb.com/";
-
     const response = await axios.get('/api_category.php');
     const categories = await response.data
 
@@ -78,12 +77,7 @@ export default function Home({ categories }) {
 
   const submitHandler = (e) => {
     e.preventDefault();
-
-    setUrl(`/api.php?amount=${amount}}&category=${category}&difficulty=${difficulty}&type=${type}`)
-    console.log("Category: " + category)
-    console.log("Difficulty: " + difficulty)
-    console.log("Type: " + type)
-    console.log("Amount:" + amount)
+    setUrl(`/api.php?amount=${amount}&category=${category}&difficulty=${difficulty}&type=${type}`)
     console.log(url)
   }
 
