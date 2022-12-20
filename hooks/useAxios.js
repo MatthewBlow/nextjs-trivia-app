@@ -8,7 +8,6 @@ const useAxios = async ({ url }) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
-  
   useEffect(() => {
     const fetchData = async () => {
       try {
