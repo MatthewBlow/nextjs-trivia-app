@@ -12,12 +12,34 @@ export const Provider = ({ children }) => {
   const [questions, setQuestions] = useState([]);
   const [url, setUrl] = useState("");
 
+  const [category, setCategory] = useState("");
+  const [difficulty, setDifficulty] = useState("");
+  const [type, setType] = useState("");
+  const [amount, setAmount] = useState("");
+  const [score, setScore] = useState(0);
+
+  let requestedUrl = `/api.php?amount=${amount}&category=${category}&difficulty=${difficulty}&type=${type}`;
+
   axios.defaults.baseURL = "https://opentdb.com/";
 
+  const getQuestions = async () => {
+    try {
+      const response = await axios.get(requestedUrl);
+      //  const data = await response.json();
+      setQuestions(response.data.results);
+      console.log(response.data.results);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /*
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const response = await axios.get(url);
+        const response = await axios.get(requestedUrl);
         const data = await response.json();
         setQuestions(data);
       } catch (error) {
@@ -27,15 +49,22 @@ export const Provider = ({ children }) => {
       }
     };
     fetchQuestions();
-  }, [url]);
+  }, [url]); */
 
   const mainContextVaues = {
     questions,
     categories,
     loading,
     error,
-    setUrl,
     url,
+    score,
+    setCategory,
+    setDifficulty,
+    setType,
+    setAmount,
+    setUrl,
+    setScore,
+    getQuestions,
   };
 
   return (

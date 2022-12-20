@@ -16,6 +16,7 @@ import axios from "axios";
 import { useContext, useState } from "react";
 import MainContext from "../context/mainContext";
 import useAxios from "../hooks/useAxios";
+import { useRouter } from "next/router";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -33,7 +34,6 @@ export const getStaticProps = async () => {
   const response = await axios.get("/api_category.php");
   const categories = await response.data;
 
-  // const { response, error, loading } = useAxios({ url: "/api_category.php"})
   return {
     props: {
       categories,
@@ -42,14 +42,23 @@ export const getStaticProps = async () => {
 };
 
 export default function Home({ categories }) {
-  const [category, setCategory] = useState("");
+  /* const [category, setCategory] = useState("");
   const [difficulty, setDifficulty] = useState("");
   const [type, setType] = useState("");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(""); */
+  const router = useRouter();
 
-  let url = `/api.php?amount=${amount}&category=${category}&difficulty=${difficulty}&type=${type}`;
+  //  let url = `/api.php?amount=${amount}&category=${category}&difficulty=${difficulty}&type=${type}`;
 
-  const { loading, error, setUrl } = useContext(MainContext);
+  const {
+    loading,
+    error,
+    setUrl,
+    setCategory,
+    setDifficulty,
+    setType,
+    setAmount,
+  } = useContext(MainContext);
 
   const difficultyOptions = [
     { id: "easy", name: "Easy" },
@@ -62,13 +71,13 @@ export default function Home({ categories }) {
     { id: "boolean", name: "True/False" },
   ];
 
-  if (loading) {
+  /* if (loading) {
     return (
       <Box mt={20}>
         <CircularProgress />
       </Box>
     );
-  }
+  } */
 
   if (error) {
     return (
@@ -78,10 +87,10 @@ export default function Home({ categories }) {
     );
   }
 
-  const submitHandler = (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
-    setUrl(url);
-    console.log(url);
+    //  setUrl(url);
+    router.replace("/questions");
   };
 
   return (
