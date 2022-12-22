@@ -1,34 +1,22 @@
-import Head from "next/head";
-import Image from "next/image";
 import { Inter } from "@next/font/google";
-import styles from "../styles/Home.module.css";
-import { Container } from "@mui/system";
-import {
-  Box,
-  Button,
-  CircularProgress,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import SelectField from "../components/SelectField";
 import TextFieldComponent from "../components/TextField";
 import axios from "axios";
 import { useContext, useState } from "react";
 import MainContext from "../context/mainContext";
-import useAxios from "../hooks/useAxios";
 import { useRouter } from "next/router";
+import styled from "@emotion/styled";
 
-const inter = Inter({ subsets: ["latin"] });
+const Container = styled.div`
+  position: fixed;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30%;
+`;
 
 axios.defaults.baseURL = "https://opentdb.com/";
-
-/* export const getData = () => {
-  const context = useContext(MainContext);
-  if (!context) {
-    throw new Error('useData must be used within a DataProvider');
-  }
-  return context;
-}; */
 
 export const getStaticProps = async () => {
   const response = await axios.get("/api_category.php");
@@ -42,23 +30,34 @@ export const getStaticProps = async () => {
 };
 
 export default function Home({ categories }) {
-  /* const [category, setCategory] = useState("");
-  const [difficulty, setDifficulty] = useState("");
-  const [type, setType] = useState("");
-  const [amount, setAmount] = useState(""); */
+  const [categoryError, setCategoryError] = useState(false);
+  const [difficultyError, setDifficultyError] = useState(false);
+  const [typeError, setTypeError] = useState(false);
+  const [amountError, setAmountError] = useState(false);
+
   const router = useRouter();
 
-  //  let url = `/api.php?amount=${amount}&category=${category}&difficulty=${difficulty}&type=${type}`;
-
   const {
+    category,
+    difficulty,
+    type,
+    amount,
     loading,
     error,
     setUrl,
-    setCategory,
-    setDifficulty,
-    setType,
-    setAmount,
+    dispatch,
+    getQuestions,
+    validateField,
+    ACTIONS,
   } = useContext(MainContext);
+
+  const setCategory = (category) =>
+    dispatch({ type: ACTIONS.SET_CATEGORY, payload: category });
+  const setDifficulty = (difficulty) =>
+    dispatch({ type: ACTIONS.SET_DIFFICULTY, payload: difficulty });
+  const setType = (type) => dispatch({ type: ACTIONS.SET_TYPE, payload: type });
+  const setAmount = (amount) =>
+    dispatch({ type: ACTIONS.SET_AMOUNT, payload: amount });
 
   const difficultyOptions = [
     { id: "easy", name: "Easy" },
@@ -89,12 +88,24 @@ export default function Home({ categories }) {
 
   const submitHandler = async (e) => {
     e.preventDefault();
-    //  setUrl(url);
-    router.replace("/questions");
+
+    const isCategoryValid = validateField(category, setCategoryError);
+    const isDifficultyValid = validateField(difficulty, setDifficultyError);
+    const isTypeValid = validateField(type, setTypeError);
+    const isAmountValid = validateField(amount, setAmountError);
+
+    if (isCategoryValid && isDifficultyValid && isTypeValid && isAmountValid) {
+      //  setUrl(url);
+      getQuestions();
+      console.log("Goes to next page!");
+      router.replace("/questions");
+    } else {
+      console.log("All fields must be full");
+    }
   };
 
   return (
-    <div>
+    <Container>
       <Typography variant="h2" color="black" fontWeight="bold">
         Quiz App
       </Typography>
@@ -103,20 +114,34 @@ export default function Home({ categories }) {
           options={categories.trivia_categories}
           setParam={setCategory}
           label="Category"
+          error={categoryError}
+          setError={setCategoryError}
         />
         <SelectField
           options={difficultyOptions}
           setParam={setDifficulty}
           label="Difficulty"
+          error={difficultyError}
+          setError={setDifficultyError}
         />
-        <SelectField options={typeOptions} setParam={setType} label="Type" />
-        <TextFieldComponent setParam={setAmount} />
+        <SelectField
+          options={typeOptions}
+          setParam={setType}
+          label="Type"
+          error={typeError}
+          setError={setTypeError}
+        />
+        <TextFieldComponent
+          setParam={setAmount}
+          error={amountError}
+          setError={setAmountError}
+        />
         <Box mt={3} width="100%">
           <Button fullWidth variant="contained" type="submit">
             Get Started
           </Button>
         </Box>
       </form>
-    </div>
+    </Container>
   );
 }

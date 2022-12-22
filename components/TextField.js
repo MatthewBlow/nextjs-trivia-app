@@ -1,10 +1,11 @@
-import { FormControl, TextField } from "@mui/material";
+import { FormControl, FormHelperText, TextField } from "@mui/material";
 import { Box } from "@mui/system";
 import React from "react";
 
-const TextFieldComponent = ({ setParam }) => {
+const TextFieldComponent = ({ setParam, setError, error }) => {
   const handleChange = (e) => {
-    setParam(e.target.value)
+    setParam(e.target.value);
+    setError(false);
   };
 
   return (
@@ -15,8 +16,10 @@ const TextFieldComponent = ({ setParam }) => {
           variant="outlined"
           label="Amount of Questions"
           type="number"
-          size="small"
+          size="medium"
+          error={error}
         />
+        {error && <FormHelperText error>Please select input!</FormHelperText>}
       </FormControl>
     </Box>
   );

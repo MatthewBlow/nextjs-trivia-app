@@ -1,17 +1,38 @@
-import { Button, Typography } from "@mui/material";
+import { Button, CircularProgress, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import MainContext from "../context/mainContext";
 import { useRouter } from "next/router";
 
 const FinalScreen = () => {
-  const { score, questions, setScore } = useContext(MainContext);
+  const {
+    score,
+    questions,
+    setScore,
+    setQuestions,
+    dispatch,
+    initialState,
+    ACTIONS,
+  } = useContext(MainContext);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleBackToMenu = () => {
+    setIsLoading(true);
+    setQuestions([]);
     setScore(0);
+    dispatch({ type: ACTIONS.RESET_ALL });
     router.replace("/");
+    // setIsLoading(false)
   };
+
+  if (isLoading) {
+    return (
+      <Box mt={20}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box mt={30}>

@@ -3,18 +3,40 @@ import { decode } from "html-entities";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
 import MainContext from "../context/mainContext";
+import { useAxios } from "../hooks/useAxios";
+import styled from "styled-components";
+
+const QuestionBox = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 16px;
+  margin: 16px;
+  padding: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+`;
+
+const Answer = styled.div`
+  display: flex;
+  align-items: center;
+  margin: 8px 0;
+`;
 
 const getRandomInt = (max) => {
   return Math.floor(Math.random() * Math.floor(max));
 };
 
 const Questions = () => {
-  const { loading, error, getQuestions, questions, setScore, score } =
-    useContext(MainContext);
+  const { error, questions, setScore, score, url } = useContext(MainContext);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [options, setOptions] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
   const router = useRouter();
-  console.log(options);
 
   useEffect(() => {
     if (questions.length) {
@@ -25,15 +47,16 @@ const Questions = () => {
         0,
         question.correct_answer
       );
+      setIsLoading(false);
       setOptions(answers);
     }
   }, [questions, questionIndex]);
 
-  useEffect(() => {
-    getQuestions();
-  }, []);
+  /* useEffect(() => {
+    if (!questions.length) router.replace("/");
+  }, [questions]); */
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Box mt={20}>
         <CircularProgress />
@@ -50,6 +73,7 @@ const Questions = () => {
   }
 
   const handleClickAnswer = (e) => {
+    setProgress(progress + 10);
     const question = questions[questionIndex];
     if (e.target.textContent === question.correct_answer) {
       setScore(score + 1);
@@ -62,6 +86,8 @@ const Questions = () => {
     }
   };
 
+  // Score: {score} / {questions.length}
+
   return (
     <Box>
       <Typography variant="h4">Question {questionIndex + 1}</Typography>
@@ -69,14 +95,14 @@ const Questions = () => {
         {decode(questions[questionIndex].question)}
       </Typography>
       {options.map((data, id) => (
-        <Box mt={2} key={id}>
-          <Button onClick={handleClickAnswer} variant="contained">
-            {decode(data)}
-          </Button>
-        </Box>
+        <QuestionBox key={id}>
+          <Answer onClick={handleClickAnswer}>
+            <Button variant="text">{decode(data)}</Button>
+          </Answer>
+        </QuestionBox>
       ))}
       <Box mt={5}>
-        Score: {score} / {questions.length}
+        <CircularProgress size="8rem" variant="determinate" value={progress} />
       </Box>
     </Box>
   );
