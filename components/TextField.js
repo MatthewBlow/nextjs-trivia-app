@@ -18,6 +18,9 @@ const TextFieldComponent = ({ setParam, setError, error }) => {
           type="number"
           size="medium"
           error={error}
+          style={{
+            textAlign: "center",
+          }}
         />
         {error && <FormHelperText error>Please select input!</FormHelperText>}
       </FormControl>

@@ -14,6 +14,10 @@ const Container = styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
   width: 30%;
+  border: 2px solid #333;
+  border-radius: 5px;
+  padding: 5rem;
+  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
 `;
 
 axios.defaults.baseURL = "https://opentdb.com/";

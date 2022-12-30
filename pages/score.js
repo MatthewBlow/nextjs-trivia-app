@@ -3,6 +3,7 @@ import { Box } from "@mui/system";
 import { useContext, useState } from "react";
 import MainContext from "../context/mainContext";
 import { useRouter } from "next/router";
+import styled from "styled-components";
 
 const FinalScreen = () => {
   const {
@@ -12,6 +13,7 @@ const FinalScreen = () => {
     setQuestions,
     dispatch,
     initialState,
+    setScoreProgress,
     ACTIONS,
   } = useContext(MainContext);
   const [isLoading, setIsLoading] = useState(false);
@@ -21,16 +23,23 @@ const FinalScreen = () => {
     setIsLoading(true);
     setQuestions([]);
     setScore(0);
+    setScoreProgress(0);
     dispatch({ type: ACTIONS.RESET_ALL });
     router.replace("/");
     // setIsLoading(false)
   };
 
+  const Loading = styled.div`
+    overflow: hidden;
+  `;
+
   if (isLoading) {
     return (
-      <Box mt={20}>
-        <CircularProgress />
-      </Box>
+      <Loading>
+        <Box mt={20}>
+          <CircularProgress />
+        </Box>
+      </Loading>
     );
   }
 

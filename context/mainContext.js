@@ -6,6 +6,7 @@ import {
   useState,
 } from "react";
 import axios from "axios";
+import { decode } from "html-entities";
 
 const MainContext = createContext();
 
@@ -48,6 +49,7 @@ export const Provider = ({ children }) => {
   const [questions, setQuestions] = useState([]);
   const [url, setUrl] = useState("");
   const [score, setScore] = useState(0);
+  const [scoreProgress, setScoreProgress] = useState(0);
 
   const [urlParams, dispatch] = useReducer(reducer, {
     category: "",
@@ -76,7 +78,7 @@ export const Provider = ({ children }) => {
     try {
       const response = await axios.get(requestedUrl);
       //  const data = await response.json();
-      setQuestions(response.data.results);
+      setQuestions(decode(response.data.results));
       console.log(response.data.results);
     } catch (error) {
       console.log(error);
@@ -96,6 +98,8 @@ export const Provider = ({ children }) => {
     difficulty,
     type,
     amount,
+    scoreProgress,
+    setScoreProgress,
     setUrl,
     setScore,
     getQuestions,
