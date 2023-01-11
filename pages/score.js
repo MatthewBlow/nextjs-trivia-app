@@ -4,11 +4,23 @@ import { useContext, useState } from "react";
 import MainContext from "../context/mainContext";
 import { useRouter } from "next/router";
 import styled from "styled-components";
+import Leaderboard from "../components/Leaderboard";
+
+const Main = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid black;
+  // height: 100vh;
+  // width: 100vw;
+`;
 
 const FinalScreen = () => {
   const {
     score,
     questions,
+    points,
+    setPoints,
     setScore,
     setQuestions,
     dispatch,
@@ -23,6 +35,7 @@ const FinalScreen = () => {
     setIsLoading(true);
     setQuestions([]);
     setScore(0);
+    setPoints(0);
     setScoreProgress(0);
     dispatch({ type: ACTIONS.RESET_ALL });
     router.replace("/");
@@ -44,14 +57,15 @@ const FinalScreen = () => {
   }
 
   return (
-    <Box mt={30}>
-      <Typography variant="h3" fontWeight="bold" mb={3}>
-        Final Score: {score} / {questions.length}
-      </Typography>
+    <>
+      <Main>
+        <Leaderboard />
+      </Main>
+      <br />
       <Button onClick={handleBackToMenu} variant="outlined">
         Back to Main Menu!
       </Button>
-    </Box>
+    </>
   );
 };
 

@@ -50,6 +50,9 @@ export const Provider = ({ children }) => {
   const [url, setUrl] = useState("");
   const [score, setScore] = useState(0);
   const [scoreProgress, setScoreProgress] = useState(0);
+  const [points, setPoints] = useState(0);
+  const [isTF, setIsTF] = useState(false);
+  const [name, setName] = useState("");
 
   const [urlParams, dispatch] = useReducer(reducer, {
     category: "",
@@ -59,6 +62,10 @@ export const Provider = ({ children }) => {
   });
 
   const { category, difficulty, type, amount } = urlParams;
+
+  if (difficulty === "boolean") {
+    setIsTF(true);
+  }
 
   let requestedUrl = `/api.php?amount=${amount}&category=${category}&difficulty=${difficulty}&type=${type}`;
 
@@ -87,6 +94,16 @@ export const Provider = ({ children }) => {
     }
   };
 
+  const setOverallPoints = (count) => {
+    if (difficulty === "easy") {
+      setPoints(points + count * 500 * 0.75);
+    } else if (difficulty === "medium") {
+      setPoints(points + count * 500);
+    } else {
+      setPoints(points + count * 500 * 1.25);
+    }
+  };
+
   const mainContextVaues = {
     questions,
     categories,
@@ -99,6 +116,13 @@ export const Provider = ({ children }) => {
     type,
     amount,
     scoreProgress,
+    points,
+    isTF,
+    name,
+    setName,
+    setPoints,
+    setIsTF,
+    setOverallPoints,
     setScoreProgress,
     setUrl,
     setScore,

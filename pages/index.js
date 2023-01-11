@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 import styled from "@emotion/styled";
 
 const Container = styled.div`
+  margin-top: 80px;
   position: fixed;
   top: 35%;
   left: 50%;
@@ -17,7 +18,7 @@ const Container = styled.div`
   border: 2px solid #333;
   border-radius: 5px;
   padding: 5rem;
-  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.15);
 `;
 
 axios.defaults.baseURL = "https://opentdb.com/";
@@ -34,6 +35,7 @@ export const getStaticProps = async () => {
 };
 
 export default function Home({ categories }) {
+  const [nameError, setNameError] = useState(false);
   const [categoryError, setCategoryError] = useState(false);
   const [difficultyError, setDifficultyError] = useState(false);
   const [typeError, setTypeError] = useState(false);
@@ -47,9 +49,11 @@ export default function Home({ categories }) {
     type,
     amount,
     loading,
+    name,
     error,
     setUrl,
     dispatch,
+    setName,
     getQuestions,
     validateField,
     ACTIONS,
@@ -74,6 +78,12 @@ export default function Home({ categories }) {
     { id: "boolean", name: "True/False" },
   ];
 
+  const questionAmountOptions = [
+    { id: "6", name: 6 },
+    { id: "8", name: 8 },
+    { id: "10", name: 10 },
+  ];
+
   /* if (loading) {
     return (
       <Box mt={20}>
@@ -93,15 +103,21 @@ export default function Home({ categories }) {
   const submitHandler = async (e) => {
     e.preventDefault();
 
+    const isNameValid = validateField(name, setNameError);
     const isCategoryValid = validateField(category, setCategoryError);
     const isDifficultyValid = validateField(difficulty, setDifficultyError);
     const isTypeValid = validateField(type, setTypeError);
     const isAmountValid = validateField(amount, setAmountError);
 
-    if (isCategoryValid && isDifficultyValid && isTypeValid && isAmountValid) {
+    if (
+      isNameValid &&
+      isCategoryValid &&
+      isDifficultyValid &&
+      isTypeValid &&
+      isAmountValid
+    ) {
       //  setUrl(url);
       getQuestions();
-      console.log("Goes to next page!");
       router.replace("/questions");
     } else {
       console.log("All fields must be full");
@@ -114,6 +130,13 @@ export default function Home({ categories }) {
         Quiz App
       </Typography>
       <form onSubmit={submitHandler}>
+        <TextFieldComponent
+          label="Name"
+          setParam={setName}
+          error={nameError}
+          setError={setNameError}
+          type="text"
+        />
         <SelectField
           options={categories.trivia_categories}
           setParam={setCategory}
@@ -135,8 +158,10 @@ export default function Home({ categories }) {
           error={typeError}
           setError={setTypeError}
         />
-        <TextFieldComponent
+        <SelectField
+          options={questionAmountOptions}
           setParam={setAmount}
+          label="Amount of Questions"
           error={amountError}
           setError={setAmountError}
         />

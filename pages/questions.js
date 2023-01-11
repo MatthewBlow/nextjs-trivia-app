@@ -1,10 +1,18 @@
 import { Box, Button, CircularProgress, Typography } from "@mui/material";
 import { decode } from "html-entities";
 import { useRouter } from "next/router";
-import { useContext, useEffect, useState } from "react";
+import {
+  use,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import MainContext from "../context/mainContext";
 import styled from "styled-components";
 import CircularProgressBarWithMeter from "../components/CircularProgressBarWithMeter";
+import { saveAs } from "file-saver";
 
 const Container = styled.div`
   display: flex;
@@ -19,7 +27,8 @@ const Container = styled.div`
 const AnswerBoxes = styled.div`
   flex-grow: 1;
   flex-shrink: 1;
-  margin: 50px 200px 0px 0px;
+  margin: ${(props) =>
+    props.isTF ? "100px 200px 0px 0px" : "50px 200px 0px 0px"};
 `;
 
 const AnswerBox = styled.div`
@@ -68,8 +77,17 @@ const Questions = () => {
     questions,
     setScore,
     score,
+    difficulty,
+    type,
+    amount,
     url,
+    name,
+    isTF,
     scoreProgress,
+    setIsTF,
+    points,
+    setPoints,
+    setOverallPoints,
     setScoreProgress,
   } = useContext(MainContext);
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -77,17 +95,73 @@ const Questions = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState(0);
   const [count, setCount] = useState(10);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [isCorrect, setIsCorrect] = useState(null);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+
+  const nextQuestion = () => {
+    setTimeout(() => {
+      setQuestionIndex(questionIndex + 1);
+      setSelectedAnswer(null);
+      setIsCorrect(null);
+    }, 2000);
+  };
+
+  const playerScore = {
+    name: name,
+    score: points,
+    difficulty: difficulty,
+    questions: amount,
+  };
+
+  const savePlayerScore = async (data) => {
+    const response = await fetch("http://localhost:5001/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    const result = await response.text();
+    console.log(result);
+  };
 
   const router = useRouter();
+  const intervalRef = useRef();
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      while (count !== 0) {
-        setCount((prevCount) => prevCount - 1);
-      }
-    }, 1000);
-    return () => clearInterval(interval);
+    if (type === "boolean") {
+      setIsTF(true);
+    }
+    setProgress(0);
+    setScoreProgress(0);
   }, []);
+
+  useEffect(() => {
+    if (count > 0.1) {
+      intervalRef.current = setInterval(() => {
+        setCount((prevCount) => prevCount - 1);
+      }, 1000);
+    } else if (count === 0) {
+      setIsButtonDisabled(true);
+      setProgress((100 / questions.length) * (questionIndex + 1));
+
+      if (questionIndex + 1 < questions.length) {
+        nextQuestion();
+      } else {
+        setTimeout(() => {
+          savePlayerScore(count);
+          router.replace("/score");
+        }, 1000);
+      }
+      clearInterval(intervalRef.current);
+    }
+
+    return () => clearInterval(intervalRef.current);
+  }, [count]);
+
+  useEffect(() => {
+    setCount(10);
+    setIsButtonDisabled(false);
+  }, [questionIndex]);
 
   useEffect(() => {
     if (questions.length) {
@@ -106,24 +180,6 @@ const Questions = () => {
   useEffect(() => {
     setScoreProgress((score / questions.length) * 100);
   }, [score]);
-
-  const checkAnswer = (e, question) => {
-    if (e.target.textContent === question.correct_answer) {
-      setScore(score + 1);
-      e.target.classList.add("correct");
-      console.log(
-        document.getElementById(
-          ".answer-box:contains(" + question.correct_answer + ")"
-        )
-      );
-    } else {
-      e.target.classList.add("wrong");
-      const correctAnswerBox = document.getElementById(
-        ".answer-box:contains(" + question.correct_answer + ")"
-      );
-      //   correctAnswerBox.classList.add("correct");
-    }
-  };
 
   if (isLoading) {
     return (
@@ -146,26 +202,32 @@ const Questions = () => {
   const handleClickAnswer = (e) => {
     setProgress((100 / questions.length) * (questionIndex + 1));
     const question = questions[questionIndex];
+    setIsButtonDisabled(true);
 
-    const answerBoxes = document.querySelectorAll(".answer-box");
-    answerBoxes.forEach((answerBox) => {
-      answerBox.classList.remove("correct");
-      answerBox.classList.remove("wrong");
-    });
+    if (e.target.textContent === question.correct_answer) {
+      setOverallPoints(count);
+      setScore(score + 1);
+    }
 
-    checkAnswer(e, question);
+    clearInterval(intervalRef.current);
+    setCount(count);
+
+    const answer = e.target.textContent;
+    setSelectedAnswer(answer);
+    setIsCorrect(answer === question.correct_answer);
 
     if (questionIndex + 1 < questions.length) {
-      setTimeout(() => {
-        setQuestionIndex(questionIndex + 1);
-        e.target.classList.remove("correct");
-        e.target.classList.remove("wrong");
-      }, 2000);
+      nextQuestion();
     } else {
+      savePlayerScore(playerScore);
       setTimeout(() => {
         router.replace("/score");
       }, 1000);
     }
+  };
+
+  const disabledOnClick = () => {
+    return null;
   };
 
   return (
@@ -175,16 +237,48 @@ const Questions = () => {
         {decode(questions[questionIndex].question)}
       </Typography>
       <Container>
-        <AnswerBoxes>
-          {options.map((data, id) => (
-            <AnswerBox key={id} id={`answer-${id}`} onClick={handleClickAnswer}>
+        <AnswerBoxes isTF={isTF}>
+          {options.map((answer, id) => (
+            <AnswerBox
+              key={id}
+              className={`answer-box ${
+                selectedAnswer === answer && (isCorrect ? "correct" : "wrong")
+              }`}
+              onClick={isButtonDisabled ? disabledOnClick : handleClickAnswer}
+            >
               <Answer>
-                <Button variant="text">{decode(data)}</Button>
+                <Button disabled={isButtonDisabled} variant="text">
+                  {decode(answer)}
+                </Button>
               </Answer>
             </AnswerBox>
           ))}
         </AnswerBoxes>
-        <Box mt={5} position="relative">
+        <Box mt={0} position="relative">
+          <Box
+            sx={{
+              top: 40,
+              left: 20,
+              bottom: 0,
+              right: 0,
+              position: "absolute",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Typography
+              variant="caption"
+              component="div"
+              color="text.secondary"
+              sx={{ position: "absolute", top: -17, right: 85 }}
+            >
+              <h2>Score:</h2>
+              <h2>{points.toFixed(0)}</h2>
+            </Typography>
+          </Box>
+        </Box>
+        <Box mt={14} position="relative">
           <Box
             sx={{
               top: 40,
@@ -211,15 +305,15 @@ const Questions = () => {
             color="success"
           />
         </Box>
-        <Box mt={25} position="relative">
+        <Box mt={32} position="relative">
           <CircularProgressBarWithMeter progress={progress} color="primary" />
         </Box>
-        <Box mt={45} position="relative">
+        <Box mt={50} position="relative">
           <Box
             sx={{
               top: 0,
               left: 0,
-              bottom: 60,
+              bottom: 15,
               right: 0,
               position: "absolute",
               display: "flex",
@@ -231,7 +325,7 @@ const Questions = () => {
               variant="caption"
               component="div"
               color="text.secondary"
-              sx={{ position: "absolute", right: 75 }}
+              sx={{ position: "absolute", right: 85 }}
             >
               <h2>{count}</h2>
             </Typography>

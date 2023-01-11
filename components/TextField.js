@@ -2,7 +2,7 @@ import { FormControl, FormHelperText, TextField } from "@mui/material";
 import { Box } from "@mui/system";
 import React from "react";
 
-const TextFieldComponent = ({ setParam, setError, error }) => {
+const TextFieldComponent = ({ setParam, setError, error, type, label }) => {
   const handleChange = (e) => {
     setParam(e.target.value);
     setError(false);
@@ -14,8 +14,8 @@ const TextFieldComponent = ({ setParam, setError, error }) => {
         <TextField
           onChange={handleChange}
           variant="outlined"
-          label="Amount of Questions"
-          type="number"
+          label={label}
+          type={type}
           size="medium"
           error={error}
           style={{
