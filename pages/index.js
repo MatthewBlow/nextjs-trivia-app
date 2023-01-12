@@ -15,10 +15,11 @@ const Container = styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
   width: 30%;
-  border: 2px solid #333;
   border-radius: 5px;
   padding: 5rem;
-  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.15);
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px,
+    rgba(0, 0, 0, 0.3) 0px 30px 60px -30px,
+    rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
 `;
 
 axios.defaults.baseURL = "https://opentdb.com/";

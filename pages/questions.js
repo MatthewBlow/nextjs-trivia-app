@@ -130,7 +130,10 @@ const Questions = () => {
   useEffect(() => {
     if (type === "boolean") {
       setIsTF(true);
+    } else {
+      setIsTF(false);
     }
+
     setProgress(0);
     setScoreProgress(0);
   }, []);

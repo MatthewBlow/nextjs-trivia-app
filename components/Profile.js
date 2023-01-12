@@ -8,11 +8,6 @@ export default function Profiles({ data, mostRecent }) {
       {data.map((value, index) => (
         <Flex
           key={index}
-          onClick={() =>
-            console.log(
-              `The mostRecent is: ${mostRecent?.created_at} and the value: ${value?.created_at}`
-            )
-          }
           className={
             mostRecent?.created_at === value?.created_at ? "highlight" : ""
           }

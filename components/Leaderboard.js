@@ -63,7 +63,6 @@ export default function Leaderboard() {
   }
 
   useEffect(() => {
-    console.log("Questions Amount: " + amount + " Difficulty: " + difficulty);
     filterResults(amount, difficulty);
     getMostRecent(Results);
   }, []);
@@ -144,6 +143,7 @@ const Board = styled.div`
   text-align: center;
   font-family: "Poppins", cursive;
   margin: 0;
+  padding: 1rem;
 `;
 
 const UserResults = styled.div`
@@ -157,11 +157,11 @@ const UserResult = styled.div`
 `;
 
 const LeaderboardHeader = styled.h1`
-  // margin-bottom: 1em;
+  margin-bottom: 1em;
 `;
 
 const Settings = styled.div`
-  display: flex;
+  display: block;
   justify-content: center;
   gap: 1em;
 `;
@@ -182,18 +182,4 @@ const Button = styled.button`
     background-color: gray;
     color: white;
   }
-`;
-
-const Active = styled(Button)`
-  background-color: var(--color-dark);
-  color: var(--color-light);
-`;
-
-const ProfileStyle = styled.div`
-  margin-top: 3em;
-`;
-
-const Img = styled.img`
-  width: 20%;
-  border-radius: 50%;
 `;
